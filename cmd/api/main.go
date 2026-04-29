@@ -12,6 +12,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/iwandp/community-waste-collection-go/internal/handler"
+	"github.com/iwandp/community-waste-collection-go/internal/middleware"
 	"github.com/iwandp/community-waste-collection-go/internal/repository"
 	"github.com/iwandp/community-waste-collection-go/internal/service"
 	"github.com/jmoiron/sqlx"
@@ -27,12 +28,16 @@ func main() {
 
 	// repositories
 	householdRepo := repository.NewHouseholdRepository(db)
+	pickupRepo := repository.NewPickupRepository(db)
+	paymentRepo := repository.NewPaymentRepository(db)
 
 	// services
 	householdSvc := service.NewHouseholdService(householdRepo)
+	pickupSvc := service.NewPickupService(pickupRepo, paymentRepo)
 
 	// handlers
 	householdHandler := handler.NewHouseholdHandler(householdSvc)
+	pickupHandler := handler.NewPickupHandler(pickupSvc)
 
 	r := gin.Default()
 
@@ -43,6 +48,13 @@ func main() {
 		hh.GET("", householdHandler.List)
 		hh.GET("/:id", householdHandler.GetByID)
 		hh.DELETE("/:id", householdHandler.Delete)
+
+		ph := api.Group("/pickups")
+		ph.POST("", middleware.PickupRateLimit(), pickupHandler.Create)
+		ph.GET("", pickupHandler.List)
+		ph.PUT("/:id/schedule", pickupHandler.Schedule)
+		ph.PUT("/:id/complete", pickupHandler.Complete)
+		ph.PUT("/:id/cancel", pickupHandler.Cancel)
 	}
 
 	r.GET("/health", func(c *gin.Context) {
