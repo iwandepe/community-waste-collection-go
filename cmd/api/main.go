@@ -15,6 +15,7 @@ import (
 	"github.com/iwandp/community-waste-collection-go/internal/middleware"
 	"github.com/iwandp/community-waste-collection-go/internal/repository"
 	"github.com/iwandp/community-waste-collection-go/internal/service"
+	"github.com/iwandp/community-waste-collection-go/internal/worker"
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
@@ -38,6 +39,12 @@ func main() {
 	// handlers
 	householdHandler := handler.NewHouseholdHandler(householdSvc)
 	pickupHandler := handler.NewPickupHandler(pickupSvc)
+
+	// background worker — shares lifecycle with the server
+	workerCtx, workerCancel := context.WithCancel(context.Background())
+	defer workerCancel()
+	organicWorker := worker.NewOrganicCancelWorker(pickupRepo, time.Minute)
+	go organicWorker.Run(workerCtx)
 
 	r := gin.Default()
 
