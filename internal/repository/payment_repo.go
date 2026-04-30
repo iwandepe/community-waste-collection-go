@@ -102,3 +102,20 @@ func (r *paymentRepo) Confirm(id string, proofURL string, paymentDate time.Time)
 	}
 	return nil
 }
+
+func (r *paymentRepo) SummaryByStatus() ([]*domain.PaymentSummaryRow, error) {
+	var rows []*domain.PaymentSummaryRow
+	err := r.db.Select(&rows,
+		`SELECT status, COUNT(*) AS count, COALESCE(SUM(amount), 0) AS total_amount FROM payments GROUP BY status ORDER BY status`,
+	)
+	return rows, err
+}
+
+func (r *paymentRepo) FindByHousehold(householdID string) ([]*domain.Payment, error) {
+	var list []*domain.Payment
+	err := r.db.Select(&list,
+		`SELECT * FROM payments WHERE household_id = $1 ORDER BY created_at DESC`,
+		householdID,
+	)
+	return list, err
+}

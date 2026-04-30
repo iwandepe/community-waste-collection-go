@@ -1,6 +1,10 @@
 package domain
 
-import "time"
+import (
+	"context"
+	"mime/multipart"
+	"time"
+)
 
 type PaymentStatus string
 
@@ -46,8 +50,12 @@ type PaymentRepository interface {
 	Confirm(id string, proofURL string, paymentDate time.Time) error
 }
 
+type StorageService interface {
+	UploadFile(ctx context.Context, objectName string, file multipart.File, fileHeader *multipart.FileHeader) (string, error)
+}
+
 type PaymentService interface {
 	Create(householdID, wasteID string, amount float64) (*Payment, error)
 	List(filter PaymentFilter) ([]*Payment, int, error)
-	Confirm(id string, proofURL string) (*Payment, error)
+	Confirm(ctx context.Context, id string, file multipart.File, fileHeader *multipart.FileHeader) (*Payment, error)
 }

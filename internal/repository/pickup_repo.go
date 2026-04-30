@@ -110,3 +110,20 @@ func (r *pickupRepo) CancelOrganicExpired(before time.Time) (int64, error) {
 	}
 	return res.RowsAffected()
 }
+
+func (r *pickupRepo) SummaryByTypeAndStatus() ([]*domain.PickupSummaryRow, error) {
+	var rows []*domain.PickupSummaryRow
+	err := r.db.Select(&rows,
+		`SELECT type, status, COUNT(*) AS count FROM waste_pickups GROUP BY type, status ORDER BY type, status`,
+	)
+	return rows, err
+}
+
+func (r *pickupRepo) FindByHousehold(householdID string) ([]*domain.WastePickup, error) {
+	var list []*domain.WastePickup
+	err := r.db.Select(&list,
+		`SELECT * FROM waste_pickups WHERE household_id = $1 ORDER BY created_at DESC`,
+		householdID,
+	)
+	return list, err
+}

@@ -15,6 +15,7 @@ import (
 	"github.com/iwandp/community-waste-collection-go/internal/middleware"
 	"github.com/iwandp/community-waste-collection-go/internal/repository"
 	"github.com/iwandp/community-waste-collection-go/internal/service"
+	"github.com/iwandp/community-waste-collection-go/internal/storage"
 	"github.com/iwandp/community-waste-collection-go/internal/worker"
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
@@ -32,13 +33,27 @@ func main() {
 	pickupRepo := repository.NewPickupRepository(db)
 	paymentRepo := repository.NewPaymentRepository(db)
 
+	// storage
+	s3, err := storage.NewS3Storage(
+		getEnv("MINIO_ENDPOINT", "localhost:9000"),
+		getEnv("MINIO_ACCESS_KEY", "minioadmin"),
+		getEnv("MINIO_SECRET_KEY", "minioadmin"),
+		getEnv("MINIO_BUCKET", "payments"),
+		getEnv("MINIO_USE_SSL", "false") == "true",
+	)
+	if err != nil {
+		log.Fatalf("failed to init storage: %v", err)
+	}
+
 	// services
 	householdSvc := service.NewHouseholdService(householdRepo)
 	pickupSvc := service.NewPickupService(pickupRepo, paymentRepo)
+	paymentSvc := service.NewPaymentService(paymentRepo, pickupRepo, s3)
 
 	// handlers
 	householdHandler := handler.NewHouseholdHandler(householdSvc)
 	pickupHandler := handler.NewPickupHandler(pickupSvc)
+	paymentHandler := handler.NewPaymentHandler(paymentSvc)
 
 	// background worker — shares lifecycle with the server
 	workerCtx, workerCancel := context.WithCancel(context.Background())
@@ -62,6 +77,11 @@ func main() {
 		ph.PUT("/:id/schedule", pickupHandler.Schedule)
 		ph.PUT("/:id/complete", pickupHandler.Complete)
 		ph.PUT("/:id/cancel", pickupHandler.Cancel)
+
+		pmh := api.Group("/payments")
+		pmh.POST("", paymentHandler.Create)
+		pmh.GET("", paymentHandler.List)
+		pmh.PUT("/:id/confirm", paymentHandler.Confirm)
 	}
 
 	r.GET("/health", func(c *gin.Context) {
