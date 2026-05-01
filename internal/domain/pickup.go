@@ -38,6 +38,12 @@ type PickupFilter struct {
 	Limit       int
 }
 
+type PickupSummaryRow struct {
+	Type   PickupType   `db:"type" json:"type"`
+	Status PickupStatus `db:"status" json:"status"`
+	Count  int          `db:"count" json:"count"`
+}
+
 type PickupRepository interface {
 	Create(p *WastePickup) error
 	FindByID(id string) (*WastePickup, error)
@@ -45,6 +51,8 @@ type PickupRepository interface {
 	UpdateStatus(id string, status PickupStatus) error
 	UpdateSchedule(id string, pickupDate *time.Time, status PickupStatus) error
 	CancelOrganicExpired(before time.Time) (int64, error)
+	SummaryByTypeAndStatus() ([]*PickupSummaryRow, error)
+	FindByHousehold(householdID string) ([]*WastePickup, error)
 }
 
 type PickupService interface {

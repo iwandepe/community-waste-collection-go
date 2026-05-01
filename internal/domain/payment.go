@@ -42,12 +42,20 @@ type PaymentFilter struct {
 	Limit       int
 }
 
+type PaymentSummaryRow struct {
+	Status       PaymentStatus `db:"status" json:"status"`
+	Count        int           `db:"count" json:"count"`
+	TotalAmount  float64       `db:"total_amount" json:"total_amount"`
+}
+
 type PaymentRepository interface {
 	Create(p *Payment) error
 	FindByID(id string) (*Payment, error)
 	FindAll(filter PaymentFilter) ([]*Payment, int, error)
 	HasPendingByHousehold(householdID string) (bool, error)
 	Confirm(id string, proofURL string, paymentDate time.Time) error
+	SummaryByStatus() ([]*PaymentSummaryRow, error)
+	FindByHousehold(householdID string) ([]*Payment, error)
 }
 
 type StorageService interface {

@@ -54,6 +54,7 @@ func main() {
 	householdHandler := handler.NewHouseholdHandler(householdSvc)
 	pickupHandler := handler.NewPickupHandler(pickupSvc)
 	paymentHandler := handler.NewPaymentHandler(paymentSvc)
+	reportHandler := handler.NewReportHandler(pickupRepo, paymentRepo)
 
 	// background worker — shares lifecycle with the server
 	workerCtx, workerCancel := context.WithCancel(context.Background())
@@ -82,6 +83,11 @@ func main() {
 		pmh.POST("", paymentHandler.Create)
 		pmh.GET("", paymentHandler.List)
 		pmh.PUT("/:id/confirm", paymentHandler.Confirm)
+
+		rh := api.Group("/reports")
+		rh.GET("/waste-summary", reportHandler.WasteSummary)
+		rh.GET("/payment-summary", reportHandler.PaymentSummary)
+		rh.GET("/households/:id/history", reportHandler.HouseholdHistory)
 	}
 
 	r.GET("/health", func(c *gin.Context) {
