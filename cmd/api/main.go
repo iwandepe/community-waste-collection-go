@@ -25,6 +25,10 @@ import (
 func main() {
 	_ = godotenv.Load()
 
+	if getEnv("APP_ENV", "development") == "production" {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	db := mustConnectDB()
 	defer db.Close()
 
