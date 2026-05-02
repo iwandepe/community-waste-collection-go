@@ -1,0 +1,292 @@
+{
+  "info": {
+    "name": "Community Waste Collection API",
+    "_postman_id": "community-waste-collection",
+    "description": "API collection for the Community Waste Collection system. Set the `base_url` variable to `http://localhost:8080`.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8080" },
+    { "key": "household_id", "value": "" },
+    { "key": "pickup_id", "value": "" },
+    { "key": "payment_id", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/health", "host": ["{{base_url}}"], "path": ["health"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Households",
+      "item": [
+        {
+          "name": "Create Household",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var res = pm.response.json();",
+                  "if (res.success && res.data) {",
+                  "  pm.collectionVariables.set('household_id', res.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/households", "host": ["{{base_url}}"], "path": ["api", "households"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"owner_name\": \"John Doe\",\n  \"address\": \"Jl. Merdeka No. 1, Jakarta\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List Households",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/households?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "households"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Household by ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/api/households/{{household_id}}", "host": ["{{base_url}}"], "path": ["api", "households", "{{household_id}}"] }
+          }
+        },
+        {
+          "name": "Delete Household",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{base_url}}/api/households/{{household_id}}", "host": ["{{base_url}}"], "path": ["api", "households", "{{household_id}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Waste Pickups",
+      "item": [
+        {
+          "name": "Create Pickup (organic)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var res = pm.response.json();",
+                  "if (res.success && res.data) {",
+                  "  pm.collectionVariables.set('pickup_id', res.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/pickups", "host": ["{{base_url}}"], "path": ["api", "pickups"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"household_id\": \"{{household_id}}\",\n  \"type\": \"organic\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Create Pickup (electronic)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/pickups", "host": ["{{base_url}}"], "path": ["api", "pickups"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"household_id\": \"{{household_id}}\",\n  \"type\": \"electronic\",\n  \"safety_check\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Create Pickup (plastic)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/pickups", "host": ["{{base_url}}"], "path": ["api", "pickups"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"household_id\": \"{{household_id}}\",\n  \"type\": \"plastic\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List Pickups",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/pickups?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "pickups"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "status", "value": "pending", "disabled": true },
+                { "key": "household_id", "value": "{{household_id}}", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Schedule Pickup",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/pickups/{{pickup_id}}/schedule", "host": ["{{base_url}}"], "path": ["api", "pickups", "{{pickup_id}}", "schedule"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pickup_date\": \"2026-05-10T09:00:00Z\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Complete Pickup",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// After completing a pickup a payment is auto-created.",
+                  "// Use GET /api/payments?household_id={{household_id}} to find it."
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "url": { "raw": "{{base_url}}/api/pickups/{{pickup_id}}/complete", "host": ["{{base_url}}"], "path": ["api", "pickups", "{{pickup_id}}", "complete"] }
+          }
+        },
+        {
+          "name": "Cancel Pickup",
+          "request": {
+            "method": "PUT",
+            "url": { "raw": "{{base_url}}/api/pickups/{{pickup_id}}/cancel", "host": ["{{base_url}}"], "path": ["api", "pickups", "{{pickup_id}}", "cancel"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Create Payment (manual)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var res = pm.response.json();",
+                  "if (res.success && res.data) {",
+                  "  pm.collectionVariables.set('payment_id', res.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/payments", "host": ["{{base_url}}"], "path": ["api", "payments"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"household_id\": \"{{household_id}}\",\n  \"waste_id\": \"{{pickup_id}}\",\n  \"amount\": 50\n}"
+            }
+          }
+        },
+        {
+          "name": "List Payments",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/payments?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "status", "value": "pending", "disabled": true },
+                { "key": "household_id", "value": "{{household_id}}", "disabled": true },
+                { "key": "date_from", "value": "2026-01-01T00:00:00Z", "disabled": true },
+                { "key": "date_to", "value": "2026-12-31T23:59:59Z", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Confirm Payment (upload proof)",
+          "request": {
+            "method": "PUT",
+            "url": { "raw": "{{base_url}}/api/payments/{{payment_id}}/confirm", "host": ["{{base_url}}"], "path": ["api", "payments", "{{payment_id}}", "confirm"] },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "proof",
+                  "type": "file",
+                  "src": [],
+                  "description": "Proof of payment file (image or PDF)"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "Waste Summary",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/api/reports/waste-summary", "host": ["{{base_url}}"], "path": ["api", "reports", "waste-summary"] }
+          }
+        },
+        {
+          "name": "Payment Summary",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/api/reports/payment-summary", "host": ["{{base_url}}"], "path": ["api", "reports", "payment-summary"] }
+          }
+        },
+        {
+          "name": "Household History",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/api/reports/households/{{household_id}}/history", "host": ["{{base_url}}"], "path": ["api", "reports", "households", "{{household_id}}", "history"] }
+          }
+        }
+      ]
+    }
+  ]
+}
