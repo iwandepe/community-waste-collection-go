@@ -2,7 +2,7 @@ BINARY=server
 MIGRATIONS_PATH=migrations
 DB_URL=postgres://postgres:postgres@localhost:5433/waste_collection?sslmode=disable
 
-.PHONY: run build docker-up docker-down migrate-up migrate-down migrate-create tidy
+.PHONY: run build docker-up docker-down migrate-up migrate-down migrate-create seed tidy
 
 run:
 	go run ./cmd/api
@@ -24,6 +24,9 @@ migrate-up:
 
 migrate-down:
 	migrate -path $(MIGRATIONS_PATH) -database "$(DB_URL)" down
+
+seed:
+	go run ./cmd/seed
 
 migrate-create:
 	@read -p "Migration name: " name; \
