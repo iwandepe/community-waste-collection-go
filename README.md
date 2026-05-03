@@ -8,7 +8,7 @@ REST API for managing household waste pickup requests and payments.
 
 | Concern | Choice |
 |---|---|
-| Language | Go 1.23 |
+| Language | Go 1.25 |
 | Framework | Gin |
 | Database | PostgreSQL 16 |
 | DB Access | sqlx + raw SQL |
@@ -45,7 +45,7 @@ All interfaces are defined in `domain/`, keeping each layer independently testab
 
 ### Prerequisites
 - Docker & docker-compose
-- Go 1.23+ (for local development only)
+- Go 1.25+ (for local development only)
 - [`golang-migrate` CLI](https://github.com/golang-migrate/migrate) (for running migrations locally)
 
 ### 1. Clone and configure
