@@ -187,7 +187,7 @@ Field: `proof` (file — image or PDF)
 2. A pickup can only be **scheduled** from `pending` status.
 3. **Electronic** pickups require `safety_check: true` before scheduling.
 4. **Organic** pickups are auto-canceled if still `pending` after 3 days (background worker, polls every minute, shuts down cleanly on SIGTERM).
-5. Completing a pickup auto-generates a payment: organic/plastic/paper → **50**, electronic → **100**.
+5. Completing a pickup auto-generates a payment: organic/plastic/paper → **50000**, electronic → **100000**.
 6. Payment confirmation requires uploading a proof file to MinIO; the URL is saved to the payment record.
 
 ---

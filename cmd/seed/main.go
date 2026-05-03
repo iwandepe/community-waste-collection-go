@@ -113,9 +113,9 @@ func seed(db *sqlx.DB) error {
 
 	payments := []payment{
 		// Budi organic completed → paid
-		{uuid.NewString(), households[0].id, pickups[0].id, "paid", 50, &paidDate, &proofURL},
+		{uuid.NewString(), households[0].id, pickups[0].id, "paid", 50000, &paidDate, &proofURL},
 		// Ahmad electronic completed → pending (not yet confirmed)
-		{uuid.NewString(), households[2].id, pickups[3].id, "pending", 100, nil, nil},
+		{uuid.NewString(), households[2].id, pickups[3].id, "pending", 100000, nil, nil},
 	}
 
 	for _, p := range payments {

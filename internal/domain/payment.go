@@ -15,10 +15,10 @@ const (
 )
 
 var PickupAmounts = map[PickupType]float64{
-	PickupTypeOrganic:    50,
-	PickupTypePlastic:    50,
-	PickupTypePaper:      50,
-	PickupTypeElectronic: 100,
+	PickupTypeOrganic:    50000,
+	PickupTypePlastic:    50000,
+	PickupTypePaper:      50000,
+	PickupTypeElectronic: 100000,
 }
 
 type Payment struct {
@@ -43,9 +43,9 @@ type PaymentFilter struct {
 }
 
 type PaymentSummaryRow struct {
-	Status       PaymentStatus `db:"status" json:"status"`
-	Count        int           `db:"count" json:"count"`
-	TotalAmount  float64       `db:"total_amount" json:"total_amount"`
+	Status      PaymentStatus `db:"status" json:"status"`
+	Count       int           `db:"count" json:"count"`
+	TotalAmount float64       `db:"total_amount" json:"total_amount"`
 }
 
 type PaymentRepository interface {
